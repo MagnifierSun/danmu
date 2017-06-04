@@ -9,8 +9,19 @@ from .HuoMao   import HuoMaoDanMuClient
 from .log      import set_logging
 from .config   import VERSION
 
+
+import sqlite3
+import datetime
+import threading
 __version__ = VERSION
 __all__     = ['DanMuClient']
+
+data_list={
+    # 'http://www.douyu.com/846805': 'sjss',
+    # 'http://www.panda.tv/6666':'pdd'
+    'http://www.douyu.com/56040':'youtiao',
+    'http://www.panda.tv/16688':'xiaoma'
+}
 
 class DanMuClient(object):
     def __init__(self, url):
@@ -19,6 +30,8 @@ class DanMuClient(object):
         self.__client       = None
         self.__functionDict = {'default': lambda x: 0}
         self.__isRunning    = False
+        self.__conn=sqlite3.connect('C:/Users/Administrator/PycharmProjects/danmu/test.db')
+        self.__cursor=self.__conn.cursor()
         if 'http://' == url[:7]:
             self.__url = url
         else:
@@ -64,10 +77,18 @@ class DanMuClient(object):
             while self.__isRunning:
                 if self.__client.msgPipe:
                     msg = self.__client.msgPipe.pop()
-                    fn = self.__functionDict.get(msg['MsgType'],
-                        self.__functionDict['default'])
+
+                    print(msg['MsgType'])
                     try:
-                        fn(msg)
+                        if msg['MsgType']=='danmu':
+                            print('23333')
+                            usercontent = msg['Content']
+                            time_now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                            self.__cursor.execute("insert into " + data_list[self.__url] + " values(?,?)",
+                                                  (time_now, usercontent))
+                            self.__conn.commit()
+                        else:
+                            pass
                     except:
                         traceback.print_exc()
                 else:

@@ -4,42 +4,39 @@ from danmu import DanMuClient
 from datetime import *
 import threading
 
+conn = sqlite3.connect('test.db',check_same_thread=False)
+cursor = conn.cursor()
 
-def pp(msg):
-    print(msg.encode(sys.stdin.encoding, 'ignore').
-          decode(sys.stdin.encoding))
+# def pp(msg):
+#     print(msg.encode(sys.stdin.encoding, 'ignore').
+#           decode(sys.stdin.encoding))
+# def write_to_sqlite(url,content,time_now):
+#
+#     cursor.execute("insert into "+data_list[url]+" values(?,?)", ( time_now, content))
+#     conn.commit()
+
+def print_dm(message):
+    pass
 
 
-def print_dm(msg):
-    # print(msg)
-    pp('[%s] %s' % (msg['NickName'], msg['Content']))
+def get_danmu_with_rid( rid):
 
-
-def get_danmu_with_rid(host, rid):
-    dmc = DanMuClient(host + rid)
+    dmc = DanMuClient( rid)
     if not dmc.isValid():
         print('Url not valid')
     dmc.danmu(print_dm)
     dmc.start(blockThread=True)
 
-
-dy_list = ['weixiao', '1746151', 'ShinyRuo']
-
-human_list = {
-    '6666': 'pdd',
-    '10953': '君克',
-    '666666': '若风'
+data_list={
+    # 'http://www.douyu.com/846805': 'sjss',
+    # 'http://www.panda.tv/6666':'pdd'
+    'http://www.douyu.com/56040': 'youtiao',
+    'http://www.panda.tv/16688': 'xiaoma'
 }
-panda_list = ['6666', '10953']
 
-for rid in dy_list:
-    print(rid)
-    target_thread = threading.Thread(target=get_danmu_with_rid, args=('https://www.douyu.com/', rid,),
+
+for rid in data_list:
+    target_thread = threading.Thread(target=get_danmu_with_rid, args=(rid,),
                                      name='thread-' + rid)
     # target_thread.setDaemon(True)
-    target_thread.start()
-
-for rid in panda_list:
-    target_thread = threading.Thread(target=get_danmu_with_rid, args=('http://www.panda.tv/', rid,),
-                                     name='thread-' + rid)
     target_thread.start()
